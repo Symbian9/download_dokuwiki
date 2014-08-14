@@ -85,6 +85,10 @@ def main():
         '--download-only',
         action='store_true', dest='download_only', default=False)
     parser.add_argument(
+        '--skip-export',
+        action='store_true', dest='skip_export', default=False,
+        help='Do not export a tarball')
+    parser.add_argument(
         '--homepage', metavar='URL',
         default='https://wikicn.cs.uni-duesseldorf.de/doku.php')
     parser.add_argument(
@@ -126,13 +130,14 @@ def main():
                     f.truncate(0)
                     f.write(new_str_content.encode('utf-8'))
 
-    root_dir = urlparse(args.homepage).netloc
-    assert os.path.isdir(os.path.join(args.output_dir, root_dir))
-    export_fn = root_dir + '-' + time.strftime('%Y-%m-%d') + '.tar.xz'
-    subprocess.check_call(
-        ['tar', '-C', args.output_dir, '-c', '--xz', '-f', export_fn,
-         root_dir])
-    print('Exported to %s' % export_fn)
+    if not args.skip_export:
+        root_dir = urlparse(args.homepage).netloc
+        assert os.path.isdir(os.path.join(args.output_dir, root_dir))
+        export_fn = root_dir + '-' + time.strftime('%Y-%m-%d') + '.tar.xz'
+        subprocess.check_call(
+            ['tar', '-C', args.output_dir, '-c', '--xz', '-f', export_fn,
+             root_dir])
+        print('Exported to %s' % export_fn)
 
 
 if __name__ == '__main__':
