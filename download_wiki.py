@@ -41,7 +41,7 @@ def modify(fn, content, args):
     url = re.sub(r'&do=[^&]*', '', url)
     url = re.sub(r'&sectok=[^&]*', '', url)
 
-    WARNING_HEADER = '''
+    WARNING_HEADER_TEMPLATE = '''
 <style>
 .offline_warning {
     font-size: 16px;
@@ -54,18 +54,23 @@ def modify(fn, content, args):
 }
 </style>
 <div class="offline_warning">
-This is an offline copy of <a href="%(url)s">%(url)s</a>, generated on %(date)s.
+%s
 </div>
 <!--OFFLINE-WARNING-END-->
-    ''' % {
-        'url': cgi.escape(url),
-        'date': time.strftime('%Y-%m-%d'),
-    }
+    '''
+    if args.offline_warning_html == 'none':
+        warning_header = ''
+    else:
+        warning_msg_html = args.offline_warning_html % {
+            'url': cgi.escape(url),
+            'date': time.strftime('%Y-%m-%d'),
+        }
+        warning_header = WARNING_HEADER_TEMPLATE % warning_msg_html
 
     HEADER_START = '<div id="dokuwiki__site">'
     content = re.sub(
         re.escape(HEADER_START) + r'(?:.*?<!--OFFLINE-WARNING-END-->)?',
-        HEADER_START + WARNING_HEADER,
+        HEADER_START + warning_header,
         content,
         flags=re.S)
     return content
@@ -88,6 +93,10 @@ def main():
     parser.add_argument(
         '--cookie', metavar='COOKIE',
         help='Cookie to send with all requests (login token, starts with DokuWiki:)')
+    parser.add_argument(
+        '--offline-warning', metavar='HTML', dest='offline_warning_html',
+        help='Warning to show on top of each page',
+        default='This is an offline copy of <a href="%(url)s">%(url)s</a>, generated on %(date)s.')
     args = parser.parse_args()
 
     if not os.path.exists(args.output_dir):
