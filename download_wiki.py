@@ -40,6 +40,7 @@ def modify(fn, content, args):
         url = url[:-len('/index.html')]
     url = re.sub(r'&do=[^&]*', '', url)
     url = re.sub(r'&sectok=[^&]*', '', url)
+    url = re.sub(r'(id=[^&]*)\.html$', r'\1', url)
 
     WARNING_HEADER_TEMPLATE = '''
 <style>
@@ -96,7 +97,7 @@ def main():
         default='./output')
     parser.add_argument(
         '--cookie', metavar='COOKIE',
-        help='Cookie to send with all requests (login token, starts with DokuWiki:)')
+        help='Cookie to send with all requests (login token, starts with DokuWiki=)')
     parser.add_argument(
         '--offline-warning', metavar='HTML', dest='offline_warning_html',
         help='Warning to show on top of each page',
