@@ -16,7 +16,7 @@ except ImportError:  # Python 2
 def download(args):
     cmd = ['wget', '--mirror', '-p', '--html-extension', '--convert-links']
     if args.cookie is not None:
-        cmd.extend(['--header', 'Cookie: %s' % args.cookie])
+        cmd.extend(['--header', 'Cookie: "%s"' % args.cookie])
     cmd.append(args.homepage)
     subprocess.check_call(cmd, cwd=args.output_dir)
 
